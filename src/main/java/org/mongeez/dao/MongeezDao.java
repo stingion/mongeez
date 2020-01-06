@@ -47,14 +47,16 @@ public class MongeezDao {
 
         if (auth != null) {
           switch (Optional.ofNullable(authMechanism).orElse(PLAIN)) {
-            case SCRAM_SHA_1:
-              credentials.add(MongoCredential
-                  .createScramSha1Credential(auth.getUsername(), dbName,
-                      auth.getPassword().toCharArray()));
-            default:
-              credentials.add(MongoCredential
-                  .createCredential(auth.getUsername(), dbName,
-                      auth.getPassword().toCharArray()));
+                case SCRAM_SHA_1:
+                      credentials.add(MongoCredential
+                          .createScramSha1Credential(auth.getUsername(), dbName,
+                              auth.getPassword().toCharArray()));
+                      break;
+                default:
+                      credentials.add(MongoCredential
+                          .createCredential(auth.getUsername(), dbName,
+                              auth.getPassword().toCharArray()));
+                      break;
           }
         }
 
