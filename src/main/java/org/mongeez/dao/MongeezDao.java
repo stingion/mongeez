@@ -41,8 +41,8 @@ public class MongeezDao {
         final List<MongoCredential> credentials = new LinkedList<>();
 
         String dbName = databaseName;
-        if (auth.getAuthDb() == null || auth.getAuthDb().equals(databaseName)) {
-          dbName = auth.getAuthDb();
+        if (auth.getAuthDb() != null && !auth.getAuthDb().equals(databaseName)) {
+            dbName = auth.getAuthDb();
         }
 
         if (auth != null) {
