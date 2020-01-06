@@ -12,6 +12,7 @@
 
 package org.mongeez;
 
+import com.mongodb.AuthenticationMechanism;
 import org.mongeez.commands.ChangeSet;
 import org.mongeez.commands.Script;
 import org.mongeez.reader.ChangeSetFileProvider;
@@ -39,10 +40,11 @@ public class Mongeez {
     private ChangeSetFileProvider changeSetFileProvider = null;
     private ChangeSetsValidator changeSetsValidator = new DefaultChangeSetsValidator();
     private String context = null;
+    private AuthenticationMechanism authMechanism;
 
     public void process() {
         List<ChangeSet> changeSets = getChangeSets();
-        new ChangeSetExecutor(mongo, dbName, context, auth).execute(changeSets);
+        new ChangeSetExecutor(mongo, dbName, context, auth, authMechanism).execute(changeSets);
     }
 
     private List<ChangeSet> getChangeSets() {
@@ -100,6 +102,10 @@ public class Mongeez {
 
     public void setChangeSetFileProvider(ChangeSetFileProvider changeSetFileProvider) {
         this.changeSetFileProvider = changeSetFileProvider;
+    }
+
+    public void setAuthMechanism(AuthenticationMechanism authMechanism) {
+        this.authMechanism = authMechanism;
     }
 
     public void setContext(String context) {

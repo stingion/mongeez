@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at  http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and limitations under the License.
@@ -12,14 +12,9 @@
 
 package org.mongeez.dao;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import static com.mongodb.AuthenticationMechanism.PLAIN;
 
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.mongeez.MongoAuth;
-import org.mongeez.commands.ChangeSet;
-
+import com.mongodb.AuthenticationMechanism;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -29,24 +24,38 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.QueryBuilder;
 import com.mongodb.WriteConcern;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.mongeez.MongoAuth;
+import org.mongeez.commands.ChangeSet;
 
 public class MongeezDao {
     private DB db;
     private List<ChangeSetAttribute> changeSetAttributes;
 
-    public MongeezDao(Mongo mongo, String databaseName) {
-        this(mongo, databaseName, null);
-    }
+    public MongeezDao(Mongo mongo, String databaseName, MongoAuth auth,
+        AuthenticationMechanism authMechanism) {
+        final List<MongoCredential> credentials = new LinkedList<>();
 
-    public MongeezDao(Mongo mongo, String databaseName, MongoAuth auth) {
-        final List<MongoCredential> credentials = new LinkedList<MongoCredential>();
+        String dbName = databaseName;
+        if (auth.getAuthDb() == null || auth.getAuthDb().equals(databaseName)) {
+          dbName = auth.getAuthDb();
+        }
 
         if (auth != null) {
-            if (auth.getAuthDb() == null || auth.getAuthDb().equals(databaseName)) {
-                credentials.add(MongoCredential.createCredential(auth.getUsername(), databaseName, auth.getPassword().toCharArray()));
-            } else {
-                credentials.add(MongoCredential.createCredential(auth.getUsername(), auth.getAuthDb(), auth.getPassword().toCharArray()));
-            }
+          switch (Optional.ofNullable(authMechanism).orElse(PLAIN)) {
+            case SCRAM_SHA_1:
+              credentials.add(MongoCredential
+                  .createScramSha1Credential(auth.getUsername(), dbName,
+                      auth.getPassword().toCharArray()));
+            default:
+              credentials.add(MongoCredential
+                  .createCredential(auth.getUsername(), dbName,
+                      auth.getPassword().toCharArray()));
+          }
         }
 
         final MongoClient client = new MongoClient(mongo.getServerAddressList(),  credentials);
