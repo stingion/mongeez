@@ -1,6 +1,6 @@
 ### What is mongeez?
 
-mongeez allows you to manage changes of your mongo documents and propagate these changes in sync with your code changes when you perform deployments.
+Mongeez allows you to manage changes of your mongo documents and propagate these changes in sync with your code changes when you perform deployments.
 
 For further information and usage guidelines check out [the wiki](https://github.com/mongeez/mongeez/wiki/How-to-use-mongeez).
 
